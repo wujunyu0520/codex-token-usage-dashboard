@@ -71,9 +71,11 @@ export function stableMergeUsage(previous, current) {
       const currentDay = currentDays.get(date);
       if (!previousDay) return currentDay;
       if (!currentDay) return previousDay;
-      return Number(previousDay.totalTokens || 0) > Number(currentDay.totalTokens || 0)
-        ? previousDay
-        : currentDay;
+      return highestTokenDay([
+        previousDay,
+        currentDay,
+        manualOffsetDay(previousDay, currentDay),
+      ]);
     });
 
   const mergedSessions = mergeSessions(previous.sessions || [], current.sessions || []);
@@ -101,6 +103,67 @@ export function stableMergeUsage(previous, current) {
     sessions: mergedSessions,
     sessionTotals: sumTokenRows(mergedSessions),
   };
+}
+
+function highestTokenDay(days) {
+  return days
+    .filter(Boolean)
+    .sort((a, b) => Number(b.totalTokens || 0) - Number(a.totalTokens || 0))[0];
+}
+
+function manualOffsetDay(previousDay, currentDay) {
+  const baseline = previousDay.recovered?.manualOffsetBaseline;
+  if (!baseline?.rawDay || !baseline?.displayDay) return null;
+
+  const rawBase = baseline.rawDay;
+  const displayBase = baseline.displayDay;
+  const modelName = Object.keys(previousDay.models || currentDay.models || {})[0] || "gpt-5.5";
+  const model = previousDay.models?.[modelName] || currentDay.models?.[modelName] || {};
+  const inputTokens = addPositiveDelta(displayBase.inputTokens, currentDay.inputTokens, rawBase.inputTokens);
+  const outputTokens = addPositiveDelta(displayBase.outputTokens, currentDay.outputTokens, rawBase.outputTokens);
+  const totalTokens = addPositiveDelta(displayBase.totalTokens, currentDay.totalTokens, rawBase.totalTokens);
+  const cachedInputTokens = Math.max(0, totalTokens - inputTokens - outputTokens);
+  const reasoningOutputTokens = addPositiveDelta(
+    displayBase.reasoningOutputTokens,
+    currentDay.reasoningOutputTokens,
+    rawBase.reasoningOutputTokens,
+  );
+  const costUSD = addPositiveDelta(displayBase.costUSD, currentDay.costUSD, rawBase.costUSD);
+
+  return {
+    ...previousDay,
+    inputTokens,
+    cachedInputTokens,
+    outputTokens,
+    reasoningOutputTokens,
+    totalTokens,
+    costUSD,
+    models: {
+      ...(previousDay.models || {}),
+      [modelName]: {
+        ...model,
+        inputTokens,
+        cachedInputTokens,
+        outputTokens,
+        reasoningOutputTokens,
+        totalTokens,
+      },
+    },
+    recovered: {
+      ...(previousDay.recovered || {}),
+      precision: "manual-baseline-plus-raw-delta",
+      manualOffsetBaseline: baseline,
+      rawDeltaAppliedAt: new Date().toISOString(),
+    },
+  };
+}
+
+function addPositiveDelta(displayValue, currentValue, rawBaseValue) {
+  const base = Number(displayValue || 0);
+  const delta = Math.max(0, Number(currentValue || 0) - Number(rawBaseValue || 0));
+  return Number.isInteger(base) && Number.isInteger(delta)
+    ? base + delta
+    : Number((base + delta).toFixed(6));
 }
 
 function mergeSessions(previousSessions, currentSessions) {

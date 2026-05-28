@@ -40,6 +40,8 @@ npm run update
 
 调用 `npx ccusage@latest codex daily/session --json`，刷新本地 `usage-data.js`。默认会启用稳定历史合并：如果 `ccusage` 重新计算后让某个日期的 Token 变低，仪表盘会保留上一版较高的日数据，避免历史曲线突然回落。
 
+如果某天的数据被手动校准过，并在本地数据中记录了原始基准，后续刷新会显示“手动校准值 + ccusage 新增量”，而不是让当天数值卡在手动值不动。
+
 每次刷新也会在 `snapshots/` 下保存本地快照，便于之后审计差异。`snapshots/` 默认不提交到 Git。
 
 ```bash
