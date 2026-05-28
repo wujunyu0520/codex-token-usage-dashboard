@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Codex Token 使用量</title>
+    <link rel="icon" type="image/png" href="./assets/codex-logo.png?v=codex-dashboard-1" />
+    <link rel="stylesheet" href="./styles.css?v=codex-dashboard-1" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="hero">
+        <img class="hero-logo" src="./assets/codex-logo.png?v=codex-dashboard-1" alt="" aria-hidden="true" />
+        <div class="hero-copy">
+          <p class="eyebrow">Codex Usage</p>
+          <h1>Codex Token 使用量</h1>
+        </div>
+      </header>
+
+      <section class="dashboard" aria-label="Token 使用仪表盘">
+        <div class="toolbar">
+          <div class="segmented" role="tablist" aria-label="视图">
+            <button class="tab-button active" type="button" data-view="overview" role="tab" aria-selected="true">概览</button>
+            <button class="tab-button" type="button" data-view="models" role="tab" aria-selected="false">模型</button>
+          </div>
+          <div class="segmented" role="group" aria-label="时间范围">
+            <button class="range-button active" type="button" data-range="all">全部</button>
+            <button class="range-button" type="button" data-range="30">30天</button>
+            <button class="range-button" type="button" data-range="7">7天</button>
+          </div>
+        </div>
+
+        <section class="view-panel active" id="overview-view">
+          <div class="metric-grid" id="metric-grid"></div>
+
+          <div class="heatmap-wrap">
+            <div class="heatmap" id="heatmap" aria-label="每日 Token 热力图"></div>
+          </div>
+
+          <p class="insight" id="usage-insight"></p>
+
+          <div class="daily-bars" id="daily-bars" aria-label="每日 Token 趋势"></div>
+        </section>
+
+        <section class="view-panel" id="models-view">
+          <div class="model-summary" id="model-summary"></div>
+          <div class="model-list" id="model-list"></div>
+        </section>
+
+        <footer class="footer">
+          <span id="data-source"></span>
+          <span>制图：Codex</span>
+        </footer>
+      </section>
+    </main>
+
+    <script src="./usage-data.js?v=codex-dashboard-1"></script>
+    <script src="./app.js?v=codex-dashboard-1"></script>
+  </body>
+</html>

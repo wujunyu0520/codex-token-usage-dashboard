@@ -1,0 +1,23 @@
+{
+  "name": "codex-token-usage-dashboard",
+  "version": "1.0.0",
+  "description": "A local Codex token usage dashboard powered by ccusage.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "update": "node scripts/update-usage.mjs",
+    "report": "node scripts/report-usage.mjs",
+    "serve": "node scripts/serve-no-cache.mjs",
+    "start": "node scripts/serve-no-cache.mjs"
+  },
+  "keywords": [
+    "codex",
+    "ccusage",
+    "token",
+    "dashboard",
+    "usage"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}
