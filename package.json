@@ -7,10 +7,12 @@
   "scripts": {
     "update": "node scripts/update-usage.mjs",
     "update:raw": "node scripts/update-usage.mjs --raw",
+    "record": "node scripts/record-daily.mjs",
     "report": "node scripts/report-usage.mjs",
     "report:raw": "node scripts/report-usage.mjs --raw",
     "serve": "node scripts/serve-no-cache.mjs",
-    "start": "node scripts/serve-no-cache.mjs"
+    "start": "node scripts/serve-no-cache.mjs",
+    "test": "node --test scripts/*.test.mjs"
   },
   "keywords": [
     "codex",

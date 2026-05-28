@@ -35,6 +35,14 @@ npm run serve
 ## 常用命令
 
 ```bash
+npm run record
+```
+
+推荐每天自动任务使用这个命令。它会先用稳定历史合并刷新 `usage-data.js` 和 `snapshots/`，再把当天数据追加写入 `records/daily-ledger.jsonl`。
+
+`daily-ledger.jsonl` 是追加式账本：每次运行新增一行，不覆盖旧记录；每行都包含上一行哈希和当前行哈希，方便之后发现记录是否被改动。`records/` 默认不提交到 Git。
+
+```bash
 npm run update
 ```
 
@@ -76,6 +84,8 @@ PORT=5180 npm run serve
 
 `snapshots/` 会保存历史刷新快照，也可能包含真实使用记录，默认已写入 `.gitignore`。
 
+`records/daily-ledger.jsonl` 会保存追加式每日观察记录，也可能包含真实使用记录，默认已写入 `.gitignore`。
+
 ## 免责声明
 
 这是社区工具，不是 OpenAI 官方产品，也不与 OpenAI 存在从属关系。Codex、OpenAI 等名称归其各自权利人所有。
@@ -98,8 +108,11 @@ CCUSAGE_TIMEZONE=America/Los_Angeles npm run update
 ├── styles.css                # 视觉样式
 ├── usage-data.example.js     # 可公开示例数据
 ├── usage-data.js             # 本地真实数据，默认不提交
+├── records/                  # 本地追加式每日账本，默认不提交
 └── scripts/
     ├── ccusage-data.mjs      # ccusage 数据采集与格式化
+    ├── daily-ledger.mjs      # 追加式账本记录与哈希链
+    ├── record-daily.mjs      # 刷新并追加每日记录
     ├── update-usage.mjs      # 生成 usage-data.js
     ├── report-usage.mjs      # 输出终端日报
     └── serve-no-cache.mjs    # 本地无缓存静态服务

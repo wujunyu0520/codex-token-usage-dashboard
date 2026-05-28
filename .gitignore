@@ -8,6 +8,7 @@ pnpm-debug.log*
 # Local/generated usage data. This may contain private usage history.
 usage-data.js
 snapshots/
+records/
 
 # Local browser/test artifacts.
 .playwright-cli/
