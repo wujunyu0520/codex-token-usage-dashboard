@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process";
+import { readFile } from "node:fs/promises";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
@@ -39,6 +40,109 @@ export async function collectUsage(timezone = DEFAULT_TIMEZONE) {
     sessions: sessions.sessions ?? [],
     sessionTotals: sessions.totals ?? {},
   };
+}
+
+export async function readUsageDataFile(filePath) {
+  try {
+    const content = await readFile(filePath, "utf8");
+    return parseUsageData(content);
+  } catch (error) {
+    if (error.code === "ENOENT") return null;
+    throw error;
+  }
+}
+
+export function parseUsageData(content) {
+  const json = content
+    .replace(/^\s*window\.__CCUSAGE_DATA__\s*=\s*/, "")
+    .replace(/;\s*$/, "");
+  return JSON.parse(json);
+}
+
+export function stableMergeUsage(previous, current) {
+  if (!previous) return current;
+
+  const previousDays = new Map((previous.daily || []).map((day) => [day.date, day]));
+  const currentDays = new Map((current.daily || []).map((day) => [day.date, day]));
+  const mergedDays = [...new Set([...previousDays.keys(), ...currentDays.keys()])]
+    .sort()
+    .map((date) => {
+      const previousDay = previousDays.get(date);
+      const currentDay = currentDays.get(date);
+      if (!previousDay) return currentDay;
+      if (!currentDay) return previousDay;
+      return Number(previousDay.totalTokens || 0) > Number(currentDay.totalTokens || 0)
+        ? previousDay
+        : currentDay;
+    });
+
+  const mergedSessions = mergeSessions(previous.sessions || [], current.sessions || []);
+  const dailyTotals = sumTokenRows(mergedDays);
+
+  return {
+    ...current,
+    generatedAt: current.generatedAt,
+    rawGeneratedAt: current.generatedAt,
+    stableMergedAt: new Date().toISOString(),
+    stabilization: {
+      mode: "max-by-day",
+      previousGeneratedAt: previous.generatedAt || null,
+      rawTotalTokens: current.dailyTotals?.totalTokens || 0,
+      stableTotalTokens: dailyTotals.totalTokens,
+      protectedDays: mergedDays
+        .filter((day) => {
+          const currentDay = currentDays.get(day.date);
+          return currentDay && Number(day.totalTokens || 0) > Number(currentDay.totalTokens || 0);
+        })
+        .map((day) => day.date),
+    },
+    daily: mergedDays,
+    dailyTotals,
+    sessions: mergedSessions,
+    sessionTotals: sumTokenRows(mergedSessions),
+  };
+}
+
+function mergeSessions(previousSessions, currentSessions) {
+  const sessions = new Map();
+  for (const session of [...previousSessions, ...currentSessions]) {
+    const key = session.id || [
+      session.directory || "",
+      session.lastActivity || "",
+      session.totalTokens || 0,
+    ].join("|");
+    const existing = sessions.get(key);
+    if (!existing || Number(session.totalTokens || 0) > Number(existing.totalTokens || 0)) {
+      sessions.set(key, session);
+    }
+  }
+  return [...sessions.values()].sort((a, b) => {
+    const left = a.lastActivity || a.directory || "";
+    const right = b.lastActivity || b.directory || "";
+    return left.localeCompare(right);
+  });
+}
+
+function sumTokenRows(rows) {
+  return rows.reduce(
+    (total, row) => {
+      total.inputTokens += Number(row.inputTokens || 0);
+      total.cachedInputTokens += Number(row.cachedInputTokens || 0);
+      total.outputTokens += Number(row.outputTokens || 0);
+      total.reasoningOutputTokens += Number(row.reasoningOutputTokens || 0);
+      total.totalTokens += Number(row.totalTokens || 0);
+      total.costUSD += Number(row.costUSD || 0);
+      return total;
+    },
+    {
+      cachedInputTokens: 0,
+      costUSD: 0,
+      inputTokens: 0,
+      outputTokens: 0,
+      reasoningOutputTokens: 0,
+      totalTokens: 0,
+    },
+  );
 }
 
 export function formatCompact(value) {

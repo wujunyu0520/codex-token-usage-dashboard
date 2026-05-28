@@ -38,13 +38,27 @@ npm run serve
 npm run update
 ```
 
-调用 `npx ccusage@latest codex daily/session --json`，刷新本地 `usage-data.js`。
+调用 `npx ccusage@latest codex daily/session --json`，刷新本地 `usage-data.js`。默认会启用稳定历史合并：如果 `ccusage` 重新计算后让某个日期的 Token 变低，仪表盘会保留上一版较高的日数据，避免历史曲线突然回落。
+
+每次刷新也会在 `snapshots/` 下保存本地快照，便于之后审计差异。`snapshots/` 默认不提交到 Git。
+
+```bash
+npm run update:raw
+```
+
+完全使用 `ccusage` 原始结果覆盖 `usage-data.js`，不做防回退合并。
 
 ```bash
 npm run report
 ```
 
-在终端输出今日 Codex Token 日报。
+在终端输出今日 Codex Token 日报，默认同样使用稳定历史合并。
+
+```bash
+npm run report:raw
+```
+
+在终端输出 `ccusage` 原始口径日报。
 
 ```bash
 PORT=5180 npm run serve
@@ -57,6 +71,8 @@ PORT=5180 npm run serve
 `usage-data.js` 是本机生成的真实 Token 使用记录，默认已写入 `.gitignore`，不要提交到公开仓库。
 
 仓库里的 `usage-data.example.js` 只是演示数据，可以公开。
+
+`snapshots/` 会保存历史刷新快照，也可能包含真实使用记录，默认已写入 `.gitignore`。
 
 ## 免责声明
 
