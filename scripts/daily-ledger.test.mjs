@@ -8,6 +8,7 @@ import {
   buildDailyLedgerRecord,
   pickDayForLedger,
   readPreviousLedgerHash,
+  selectLedgerDates,
 } from "./daily-ledger.mjs";
 
 test("buildDailyLedgerRecord creates a chained, tamper-evident daily observation", () => {
@@ -92,4 +93,21 @@ test("readPreviousLedgerHash reads the final hash without modifying the ledger",
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+});
+
+test("selectLedgerDates records today and the most recent prior day by default", () => {
+  assert.deepEqual(
+    selectLedgerDates(
+      [
+        { date: "2026-05-26" },
+        { date: "2026-05-27" },
+        { date: "2026-05-28" },
+      ],
+      "2026-05-28",
+      2,
+    ),
+    ["2026-05-27", "2026-05-28"],
+  );
+
+  assert.deepEqual(selectLedgerDates([], "2026-05-28", 2), ["2026-05-28"]);
 });

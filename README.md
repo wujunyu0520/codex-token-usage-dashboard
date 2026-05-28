@@ -38,7 +38,7 @@ npm run serve
 npm run record
 ```
 
-推荐每天自动任务使用这个命令。它会先用稳定历史合并刷新 `usage-data.js` 和 `snapshots/`，再把当天数据追加写入 `records/daily-ledger.jsonl`。
+推荐每天自动任务使用这个命令。它会先用稳定历史合并刷新 `usage-data.js` 和 `snapshots/`，再把最近 2 天的数据追加写入 `records/daily-ledger.jsonl`，用于补记跨天后的前一天最终变化。可以用 `RECORD_DATE=2026-05-28 npm run record` 只记录指定日期。
 
 `daily-ledger.jsonl` 是追加式账本：每次运行新增一行，不覆盖旧记录；每行都包含上一行哈希和当前行哈希，方便之后发现记录是否被改动。`records/` 默认不提交到 Git。
 

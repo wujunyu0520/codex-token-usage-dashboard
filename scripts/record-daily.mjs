@@ -14,6 +14,7 @@ import {
   buildDailyLedgerRecord,
   pickDayForLedger,
   readPreviousLedgerHash,
+  selectLedgerDates,
 } from "./daily-ledger.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -25,7 +26,10 @@ const previous = await readUsageDataFile(outputPath);
 const rawData = await collectUsage();
 const data = stableMergeUsage(previous, rawData);
 const timezone = data.timezone || rawData.timezone || "Asia/Shanghai";
-const recordDate = process.env.RECORD_DATE || localDateString(new Date(), timezone);
+const today = localDateString(new Date(), timezone);
+const recordDates = process.env.RECORD_DATE
+  ? [process.env.RECORD_DATE]
+  : selectLedgerDates(data.daily, today, process.env.RECORD_RECENT_DAYS || 2);
 
 await mkdir(root, { recursive: true });
 await mkdir(snapshotDir, { recursive: true });
@@ -52,29 +56,36 @@ await writeFile(
   "utf8",
 );
 
-const stableDay = pickDayForLedger(data.daily, recordDate);
-const rawDay = pickDayForLedger(rawData.daily, recordDate);
-const previousHash = await readPreviousLedgerHash(ledgerPath);
-const record = buildDailyLedgerRecord({
-  date: recordDate,
-  timezone,
-  stableDay,
-  rawDay,
-  previousHash,
-  stableGeneratedAt: data.generatedAt,
-  rawGeneratedAt: rawData.generatedAt,
-});
+let previousHash = await readPreviousLedgerHash(ledgerPath);
+const records = [];
+for (const recordDate of recordDates) {
+  const stableDay = pickDayForLedger(data.daily, recordDate);
+  const rawDay = pickDayForLedger(rawData.daily, recordDate);
+  const record = buildDailyLedgerRecord({
+    date: recordDate,
+    timezone,
+    stableDay,
+    rawDay,
+    previousHash,
+    stableGeneratedAt: data.generatedAt,
+    rawGeneratedAt: rawData.generatedAt,
+  });
 
-await appendDailyLedgerRecord(ledgerPath, record);
+  await appendDailyLedgerRecord(ledgerPath, record);
+  previousHash = record.hash;
+  records.push({ record, stableDay });
+}
 
 console.log(`已刷新 ${outputPath}`);
 console.log(`已追加每日账本 ${ledgerPath}`);
-console.log(`账本哈希：${record.hash}`);
-console.log(
-  `${recordDate}：${formatCompact(stableDay.totalTokens)} tokens，估算费用 ${formatCurrency(
-    stableDay.costUSD,
-  )}`,
-);
+for (const { record, stableDay } of records) {
+  console.log(`账本哈希：${record.date} ${record.hash}`);
+  console.log(
+    `${record.date}：${formatCompact(stableDay.totalTokens)} tokens，估算费用 ${formatCurrency(
+      stableDay.costUSD,
+    )}`,
+  );
+}
 
 if (data.stabilization?.protectedDays?.length) {
   console.log(`已防止回退日期：${data.stabilization.protectedDays.join("、")}`);

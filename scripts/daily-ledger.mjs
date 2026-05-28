@@ -16,6 +16,17 @@ export function pickDayForLedger(days, date) {
   return normalizeDay(day, date);
 }
 
+export function selectLedgerDates(days, currentDate, recentDays = 2) {
+  const limit = Math.max(1, Number(recentDays || 1));
+  const dates = new Set(
+    (days || [])
+      .map((day) => day.date)
+      .filter((date) => date && date <= currentDate),
+  );
+  dates.add(currentDate);
+  return [...dates].sort().slice(-limit);
+}
+
 export function buildDailyLedgerRecord({
   date,
   timezone,
