@@ -7,6 +7,7 @@ pnpm-debug.log*
 
 # Local/generated usage data. This may contain private usage history.
 usage-data.js
+official-profile-usage.json
 snapshots/
 records/
 

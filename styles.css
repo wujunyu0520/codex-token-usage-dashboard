@@ -90,6 +90,7 @@ h1 {
   align-items: center;
   gap: 8px;
   min-height: 42px;
+  flex-wrap: wrap;
 }
 
 .segmented button {
@@ -300,6 +301,7 @@ h1 {
   color: #7a7f86;
   font-size: 13px;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .empty-state {
@@ -362,6 +364,7 @@ code {
   .segmented {
     justify-content: space-between;
     width: 100%;
+    gap: 6px;
   }
 
   .segmented button {

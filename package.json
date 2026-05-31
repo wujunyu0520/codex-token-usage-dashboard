@@ -1,11 +1,13 @@
 {
   "name": "codex-token-usage-dashboard",
   "version": "1.0.0",
-  "description": "A local Codex token usage dashboard powered by ccusage.",
+  "description": "A local Codex token usage dashboard powered by the official Codex profile usage endpoint.",
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "update": "node scripts/update-usage.mjs",
+    "update": "node scripts/update-official-profile-usage.mjs",
+    "update:official": "node scripts/update-official-profile-usage.mjs",
+    "update:ccusage": "node scripts/update-usage.mjs",
     "update:raw": "node scripts/update-usage.mjs --raw",
     "record": "node scripts/record-daily.mjs",
     "report": "node scripts/report-usage.mjs",

@@ -7,13 +7,13 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Codex Token 使用量</title>
-    <link rel="icon" type="image/png" href="./assets/codex-logo.png?v=codex-dashboard-1" />
-    <link rel="stylesheet" href="./styles.css?v=codex-dashboard-1" />
+    <link rel="icon" type="image/png" href="./assets/codex-logo.png?v=codex-dashboard-profile-1" />
+    <link rel="stylesheet" href="./styles.css?v=codex-dashboard-profile-1" />
   </head>
   <body>
     <main class="page-shell">
       <header class="hero">
-        <img class="hero-logo" src="./assets/codex-logo.png?v=codex-dashboard-1" alt="" aria-hidden="true" />
+        <img class="hero-logo" src="./assets/codex-logo.png?v=codex-dashboard-profile-1" alt="" aria-hidden="true" />
         <div class="hero-copy">
           <p class="eyebrow">Codex Usage</p>
           <h1>Codex Token 使用量</h1>
@@ -24,12 +24,15 @@
         <div class="toolbar">
           <div class="segmented" role="tablist" aria-label="视图">
             <button class="tab-button active" type="button" data-view="overview" role="tab" aria-selected="true">概览</button>
-            <button class="tab-button" type="button" data-view="models" role="tab" aria-selected="false">模型</button>
+            <button class="tab-button" type="button" data-view="details" role="tab" aria-selected="false">明细</button>
           </div>
           <div class="segmented" role="group" aria-label="时间范围">
             <button class="range-button active" type="button" data-range="all">全部</button>
-            <button class="range-button" type="button" data-range="30">30天</button>
             <button class="range-button" type="button" data-range="7">7天</button>
+            <button class="range-button" type="button" data-range="10">10天</button>
+            <button class="range-button" type="button" data-range="15">15天</button>
+            <button class="range-button" type="button" data-range="30">30天</button>
+            <button class="range-button" type="button" data-range="90">90天</button>
           </div>
         </div>
 
@@ -45,9 +48,9 @@
           <div class="daily-bars" id="daily-bars" aria-label="每日 Token 趋势"></div>
         </section>
 
-        <section class="view-panel" id="models-view">
-          <div class="model-summary" id="model-summary"></div>
-          <div class="model-list" id="model-list"></div>
+        <section class="view-panel" id="details-view">
+          <div class="model-summary" id="detail-summary"></div>
+          <div class="model-list" id="detail-list"></div>
         </section>
 
         <footer class="footer">
@@ -57,7 +60,7 @@
       </section>
     </main>
 
-    <script src="./usage-data.js?v=codex-dashboard-1"></script>
-    <script src="./app.js?v=codex-dashboard-1"></script>
+    <script src="./usage-data.js?v=codex-dashboard-profile-1"></script>
+    <script src="./app.js?v=codex-dashboard-profile-1"></script>
   </body>
 </html>
